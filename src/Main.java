@@ -6,7 +6,7 @@ public class Main {
 
 		int START_WITH = 1; //Usado para controlar o elitismo.
 		int GENERATION_LIMIT = 1; //Limite de gerações
-		int POP_SIZE = 1; //Tamanho da população
+		int POP_SIZE = 10; //Tamanho da população
 		double PROB_CROSSOVER = 0.3; //Probabilidade de crossover
 		double PROB_MUTATION = 0.3; //Probabilidade de mutação.
 		int QTT_CLIENTS = 8;

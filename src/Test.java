@@ -9,20 +9,25 @@ public class Test {
 	public void makeTest(int START_WITH, int QTT_CLIENTS, int QTT_CARS, int GENERATION_LIMIT,
 			int POP_SIZE, double PROB_CROSSOVER, double PROB_MUTATION) throws IOException{
 		
-		Population pop = new Population(GENERATION_LIMIT);  //Inicia a população
-		Selector bi = new Selector();
+		Population pop = new Population(GENERATION_LIMIT, POP_SIZE, QTT_CLIENTS, QTT_CARS);  //Inicia a população
+		Fitness f = new Fitness(pop);
+		Selector s = new Selector(f, pop);
 		
-		pop.startPop(POP_SIZE, QTT_CLIENTS, QTT_CARS);  //Starta a população
+		pop.startPop();
 		
 		for(int atualGeneration = 0; atualGeneration < pop.getGenerationLimit(); atualGeneration++){ //Critério de parada I
 			System.out.println(atualGeneration+"ª Geração");
 			pop.setGeneration(atualGeneration); //Define a geração atual				
-			Population pop_aux = pop.clone();
+			f.calcFitness();
+			f.printFitness();
+			f.calcTotalFitness();  //Calculando fitness total da população
+			f.calcPorcentFitness();  //Calculando fitness porcentual de cada individuo da população
+			f.printFitnessPorcent();
+			/*Population pop_aux = pop.clone();
 			Selector bi_aux = bi.clone();		
 			
-			bi.calcFitness(pop);  //Calculando fitness de cada individuo
-			bi.calcTotalFitness();  //Calculando fitness total da população
-			bi.calcPorcentFitness();  //Calculando fitness porcentual de cada individuo da população
+			
+			
 			bi.orderPopulation(pop); //Ordena a população para realizar o elitismo
 				
 			for(int count = 0; count < GENERATION_LIMIT; count ++){
@@ -57,10 +62,11 @@ public class Test {
 				bi.calcTotalFitness();  //Calculando fitness total da população
 				bi.calcPorcentFitness();  //Calculando fitness porcentual de cada individuo da população
 			}catch(Exception e){}
+			*/
 		}
 		
-		pop.setNextGeneration(pop.getPop()); //Define os cromossomos que serão passados para a próxima geração.
-		pop.immediateReplacement(pop.getNextGeneration());
+		//pop.setNextGeneration(pop.getPop()); //Define os cromossomos que serão passados para a próxima geração.
+		//pop.immediateReplacement(pop.getNextGeneration());
 		System.out.println("\n-- x --\n");
 	}
 }
