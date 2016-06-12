@@ -2,48 +2,30 @@ import java.util.Random;
 
 public class Mutation {
 
-	 String selectedChrmosome[]; //Armazena o código binário do invididuo selecionado
+	 String selectedChrmosome[][]; //Armazena o código binário do invididuo selecionado
 	 int mutationPoint; //Ponto de mutação
-	 String mutationChrmosome[]; //Cromossomo após mutação
-
-	public Mutation(String[] selectedChrmosome) {
+	 String mutationChrmosome[][]; //Cromossomo após mutação
+	 int qttClients;
+	 
+	public Mutation(String[][] selectedChrmosome, int qttClients) {
 		setSelectedChrmosome(selectedChrmosome);
+		setQttClients(qttClients);
 	}
 	
 	//Realiza a mutação simples
 	public  void makeSimpleMutation(){
-		String[] pop = new String[1];
 		mutationPoint();
-		for(int i = 0; i < getSelectedChrmosome()[0].length(); i++){
-			String var = getSelectedChrmosome()[0].substring(i, i+1);
-			if(i == getMutationPoint() - 1){
-				if(i == 0){
-					if(var == "1"){
-						pop[0] = "0";
-					} else {
-						pop[0] = "1";
-					}
-				} else {
-					if(var == "1"){
-						pop[0] = pop[0] + "0";
-					} else {
-						pop[0] = pop[0] + "1";
-					}
-				}
-			} else {
-				if(i == 0){
-					pop[0] = var;
-				} else {
-					pop[0] = pop[0] + var;
-				}
-			}
-		}
-		setMutationChrmosome(pop);
+		Integer newValue = randInt(1, qttClients);
+		getSelectedChrmosome()[0][getMutationPoint()] = newValue.toString();
+		setMutationChrmosome(getSelectedChrmosome());
 	}
 	
 	//Define o ponto de mutação.
 	public void mutationPoint(){
-		int point = randInt(1, getSelectedChrmosome()[0].length());
+		int point = randInt(1, getSelectedChrmosome()[0].length - 1);
+		while(getSelectedChrmosome()[0][point] == "*"){
+			point = randInt(1, getSelectedChrmosome()[0].length - 1);
+		}
 		setMutationPoint(point);
 	}
 	
@@ -59,11 +41,11 @@ public class Mutation {
 	    return randomNum;
 	}
 	
-	public  String[] getSelectedChrmosome() {
+	public  String[][] getSelectedChrmosome() {
 		return selectedChrmosome;
 	}
 
-	public  void setSelectedChrmosome(String[] selectedChrmosome) {
+	public  void setSelectedChrmosome(String[][] selectedChrmosome) {
 		this.selectedChrmosome = selectedChrmosome;
 	}
 	
@@ -75,11 +57,20 @@ public class Mutation {
 		this.mutationPoint = mutationPoint;
 	}
 	
-	public  String[] getMutationChrmosome() {
+	public  String[][] getMutationChrmosome() {
 		return mutationChrmosome;
 	}
 
-	public  void setMutationChrmosome(String[] mutationChrmosome) {
+	public  void setMutationChrmosome(String[][] mutationChrmosome) {
 		this.mutationChrmosome = mutationChrmosome;
 	}
+	
+	public int getQttClients() {
+		return qttClients;
+	}
+
+	public void setQttClients(int qttClients) {
+		this.qttClients = qttClients;
+	}
+
 }

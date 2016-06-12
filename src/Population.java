@@ -11,8 +11,7 @@ public class Population implements Cloneable{
 	int generationLimit;
 	int populationSize;
 	int sizeChrmosome;
-	int newSizeChrmosome;
-	String nextGeneration[];
+	String nextGeneration[][];
 
 	//Inicializa a população, definindo os critérios de paradas.
 	public Population(int generationLimit, int populationSize, int qttClients, int qttCars){
@@ -21,15 +20,11 @@ public class Population implements Cloneable{
 		setQttClients(qttClients);
 		setPopulationSize(populationSize);
 		
-		sizeChrmosome = (qttCars) + qttClients;
+		sizeChrmosome = qttCars + qttClients;
 		setSizeChrmosome(sizeChrmosome);
-		
-		newSizeChrmosome = (2*qttCars) + qttClients;
-		setNewSizeChrmosome(newSizeChrmosome);
 	}
 	
 	ArrayList<Integer> numberClient = new ArrayList<Integer>();
-	ArrayList<Integer> numberCars = new ArrayList<Integer>();
 	
 	//Vetor de valor para os clientes
 	public int possibleClientNumber(){
@@ -43,50 +38,29 @@ public class Population implements Cloneable{
 		}
 		return 1;
 	}
-	
-	//Vetor de valores para os carros
-	public int possibleCarsNumber(){
-		numberCars.clear();
-		for(int i = 0; i < getQttCars(); i++){
-			int k = randInt(getQttClients(), getSizeChrmosome() - 1);
-			while(numberCars.contains(k)){
-				k = randInt(getQttClients(), getSizeChrmosome() - 1);
-			}
-			numberCars.add(i, k);
-		}
-		return 1;
-	}
-	
+		
 	/**Função que preenche o vetor população.
 	 * @param pop vetor de população.
 	 * @return
 	 */
 	public String[][] fillPop(String[][] pop){
 		for(int x = 0; x < getPopulationSize(); x++){
-			possibleCarsNumber();
 			possibleClientNumber();
 			int iChangePosition = getSizeChrmosome() / getQttCars();
 			int fChangePosition = 0;
-			int carNumber = 0;
 			int clientNumber = 0;
-			for(int y = 0; y < newSizeChrmosome; y++){
+			for(int y = 0; y < getSizeChrmosome(); y++){
 				//Insere o primeiro carro.
 				if(y == 0){
-					pop[x][y] = numberCars.get(carNumber).toString();
-					carNumber++;
+					pop[x][y] = "*";
 					fChangePosition = iChangePosition;
 				} else { 
 					if(y < fChangePosition){ //Insere os pontos de entrega (Clientes)
 						pop[x][y] = numberClient.get(clientNumber).toString();
 						clientNumber++;
 					} else { 
-						if(y == fChangePosition){
-							pop[x][y] = "*";
-						} else {
-							pop[x][y] = numberCars.get(carNumber).toString();
-							carNumber++;
-							fChangePosition = fChangePosition + iChangePosition + 1;
-						}
+						pop[x][y] = "*";
+						fChangePosition = fChangePosition + iChangePosition + 1;
 					}
 				}
 			}
@@ -100,7 +74,9 @@ public class Population implements Cloneable{
 	 */
 	public String[][] immediateReplacement(String[][] newPopulation){
 		for(int i = 0; i < newPopulation.length; i++){
-			this.pop[i][i] = newPopulation[i][i];
+			for(int j = 0; j < newPopulation[0].length; j++){
+				this.pop[i][j] = newPopulation[i][j];
+			}
 		}
 		return pop;
 	}
@@ -111,16 +87,17 @@ public class Population implements Cloneable{
 	 * @return
 	 */
 	public String[][] startPop(){
-		pop = new String[getPopulationSize()][getNewSizeChrmosome()];
+		pop = new String[getPopulationSize()][getSizeChrmosome()];
 		
 		setPop(fillPop(this.pop));
 		
 		return pop;
 	}
-	
-	
-	public void updatePop(int index, String chrmosome){
-		this.pop[index][1] = chrmosome;
+		
+	public void updatePop(int index, String[] chrmosome){
+		for(int i = 0; i < getSizeChrmosome(); i++){
+			this.pop[index][i] = chrmosome[i];	
+		}
 	}
 	
 	public String[][] getPop() {
@@ -163,11 +140,11 @@ public class Population implements Cloneable{
 		this.generation = generation;
 	}
 
-	public String[] getNextGeneration() {
+	public String[][] getNextGeneration() {
 		return nextGeneration;
 	}
 
-	public void setNextGeneration(String[] nextGeneration) {
+	public void setNextGeneration(String[][] nextGeneration) {
 		this.nextGeneration = nextGeneration;
 	}
 	
@@ -187,28 +164,12 @@ public class Population implements Cloneable{
 		this.qttClients = qttClients;
 	}
 	
-	public int getNewSizeChrmosome() {
-		return newSizeChrmosome;
-	}
-
-	public void setNewSizeChrmosome(int newSizeChrmosome) {
-		this.newSizeChrmosome = newSizeChrmosome;
-	}
-
 	public ArrayList<Integer> getNumberClient() {
 		return numberClient;
 	}
 
 	public void setNumberClient(ArrayList<Integer> numberClient) {
 		this.numberClient = numberClient;
-	}
-
-	public ArrayList<Integer> getNumberCars() {
-		return numberCars;
-	}
-
-	public void setNumberCars(ArrayList<Integer> numberCars) {
-		this.numberCars = numberCars;
 	}
 	
 	/**

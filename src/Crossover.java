@@ -1,56 +1,106 @@
+import java.util.Random;
+
 public class Crossover {
 	
-	 String selectedChrmosome[]; //Armazena o código binário do invididuo selecionado
+	 String selectedChrmosome[][]; //Armazena o código binário do invididuo selecionado
 	 String crossoverChrmosome[][]; //Armazena os individuos após o crossover
-	 String finalCrossoverChrmosome[];
+	 String finalCrossoverChrmosome[][];
 	 
-	public Crossover(String[] selectedChrmosome) {
-		setSelectedChrmosome(selectedChrmosome);
+	 
+	public Crossover(String[][] strings) {
+		setSelectedChrmosome(strings);
 	}
 	
-	public  void divCrossover(int qttPoint, int size){
-		int nParts = qttPoint+1;
-		crossoverChrmosome = new String[getSelectedChrmosome().length][nParts];
-		for(int i = 0; i < getSelectedChrmosome().length; i++){
-			int maxSize = size;
-			int halfSize = maxSize/(nParts);
-			int nextSize = 0;
-			for(int j = 0; j < nParts; j++){
-				nextSize = nextSize + halfSize;
-				if(j == 0){ //Primeiro pedaço do cromossomo
-					crossoverChrmosome[i][j] = getSelectedChrmosome()[i].substring(0, halfSize);
-				} else {
-					if(j == qttPoint) { //Parte final do cromossomo
-						crossoverChrmosome[i][j] = getSelectedChrmosome()[i].substring((nextSize - halfSize), maxSize);
-					} else { //Meio do cromossomo
-						crossoverChrmosome[i][j] = getSelectedChrmosome()[i].substring((nextSize - halfSize), nextSize);
-					}
-				}
+	/**
+	 * Função que gera números aleatórios.
+	 * @param min -> Valor minimo do range
+	 * @param max -> Valor maximo do range
+	 * @return 
+	 */
+	public Integer randInt(int min, int max) {
+	    Random rand = new Random();
+	    Integer randomNum = rand.nextInt((max - min) + 1) + min;
+	    return randomNum;
+	}
+	
+	public int cost(String temp[], int start, int finish){
+		int cost = 0;
+		for(int i = start; i < finish-1; i++){
+			cost += Integer.parseInt(temp[i]);
+		}
+		return cost;
+	}
+	
+	public void simpleCrossover(int qttCars, int qttClients){
+		int selectedCar = randInt(0, qttCars - 1);
+		int range = getSelectedChrmosome()[0].length/qttCars;
+		int index = 0;
+		
+		int size = (getSelectedChrmosome()[0].length - (selectedCar*range));
+		String temp[] = new String[size];
+		for(int i = 0; i != selectedCar; i++){
+			index += range;
+		}
+		int m = 0;
+		for(int k = index; k < getSelectedChrmosome()[0].length; k++){
+			temp[m] = getSelectedChrmosome()[0][k];
+			m++;
+		}
+		
+		for(int k = index; k < getSelectedChrmosome()[0].length; k++){
+			getSelectedChrmosome()[0][k] = getSelectedChrmosome()[1][k];
+		}
+		m = 0;
+		for(int k = index; k < getSelectedChrmosome()[0].length; k++){
+			getSelectedChrmosome()[1][k] = temp[m];
+			m++;
+		}
+		
+		setFinalCrossoverChrmosome(getSelectedChrmosome());
+	}
+	
+	public int bestInsertion(String temp[], int range, int sizeSubRoute, int i){
+		int bestCost = 0;
+		bestCost = cost(temp, i, sizeSubRoute)- cost(temp, i, i+1) - cost(temp, range, sizeSubRoute);
+		return bestCost;
+	}
+	
+	public  void fuckerCrossover(int qttCars, int qttClients){
+		int sizeSubRoute = (qttCars + qttClients)/qttCars;
+		int sizeChrmosome = qttCars + qttClients;
+		
+		String[] temp = new String[sizeChrmosome];
+		for(int j = 0; j < sizeChrmosome; j++){
+			temp[j] = selectedChrmosome[0][j];
+		}
+		
+		int selectedRoute = sizeSubRoute * (randInt(0, qttCars-1)); //Seleciona o veículo que sofrerá o crossover
+		int selectedSubRouteStart = randInt(1, sizeSubRoute-1); //Seleciona o range de clientes
+		int selectedSubRouteEnd;
+		
+		if(sizeSubRoute != selectedSubRouteStart){
+			selectedSubRouteEnd = randInt(selectedSubRouteStart, sizeSubRoute-1);
+		} else {
+			selectedSubRouteEnd = selectedSubRouteStart;
+		}
+		
+		int qttSelectedClients = (selectedSubRouteEnd - selectedSubRouteStart)+1;
+		int[] selectedCustomers = new int[qttSelectedClients];
+		
+		int m = 0;
+		for(int i = selectedRoute+selectedSubRouteStart; i < qttSelectedClients; i++){
+			selectedCustomers[m] = Integer.parseInt(getSelectedChrmosome()[1][i]);
+			m++;
+		}
+		
+		int value = 0;
+		
+		for(int i = qttSelectedClients; i < sizeChrmosome; i++){
+			int value2 = bestInsertion(temp, qttSelectedClients, sizeSubRoute, i);
+			if(value < value2){
+				value = value2;
 			}
 		}
-		makeCrossover(nParts);
-	}
-	
-	public  void makeCrossover(int nParts){
-		String aux = getCrossoverChrmosome()[0][1];
-		getCrossoverChrmosome()[0][1] = getCrossoverChrmosome()[1][1];
-		getCrossoverChrmosome()[1][1] = aux;
-		setCrossoverChrmosome(getCrossoverChrmosome());
-		fixCrossover();
-	}
-	
-	public  void fixCrossover(){
-		String[] pop = new String[getCrossoverChrmosome().length];
-		for(int j = 0; j < getCrossoverChrmosome().length; j++){
-			for(int i = 0; i < getCrossoverChrmosome()[0].length; i++){
-				if(i == 0){
-					pop[j] = getCrossoverChrmosome()[j][i];
-				} else {
-					pop[j] = pop[j] + getCrossoverChrmosome()[j][i];
-				}
-			}
-		}
-		setFinalCrossoverChrmosome(pop);
 	}
 	
 	public  void printCrossover(){
@@ -60,11 +110,11 @@ public class Crossover {
 		}
 	}
 	
-	public  String[] getSelectedChrmosome() {
+	public  String[][] getSelectedChrmosome() {
 		return selectedChrmosome;
 	}
 
-	public  void setSelectedChrmosome(String[] selectedChrmosome) {
+	public  void setSelectedChrmosome(String[][] selectedChrmosome) {
 		this.selectedChrmosome = selectedChrmosome;
 	}
 
@@ -76,11 +126,11 @@ public class Crossover {
 		this.crossoverChrmosome = crossoverChrmosome;
 	}
 	
-	public  String[] getFinalCrossoverChrmosome() {
+	public  String[][] getFinalCrossoverChrmosome() {
 		return finalCrossoverChrmosome;
 	}
 
-	public  void setFinalCrossoverChrmosome(String[] finalCrossoverChrmosome) {
+	public  void setFinalCrossoverChrmosome(String[][] finalCrossoverChrmosome) {
 		this.finalCrossoverChrmosome = finalCrossoverChrmosome;
 	}
 }

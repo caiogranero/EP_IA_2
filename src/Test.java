@@ -17,56 +17,61 @@ public class Test {
 		
 		for(int atualGeneration = 0; atualGeneration < pop.getGenerationLimit(); atualGeneration++){ //Critério de parada I
 			System.out.println(atualGeneration+"ª Geração");
-			pop.setGeneration(atualGeneration); //Define a geração atual				
-			f.calcFitness();
-			f.printFitness();
+			pop.setGeneration(atualGeneration); //Define a geração atual
+			f.calcFitness();  //Calcula o fitness individual da população
 			f.calcTotalFitness();  //Calculando fitness total da população
 			f.calcPorcentFitness();  //Calculando fitness porcentual de cada individuo da população
-			f.printFitnessPorcent();
-			/*Population pop_aux = pop.clone();
-			Selector bi_aux = bi.clone();		
+			s.orderPopulation(); //Ordena a população para realizar o elitismo
 			
+			Population pop_aux = pop.clone();
+			Fitness f_aux = f.clone();
 			
-			
-			bi.orderPopulation(pop); //Ordena a população para realizar o elitismo
-				
 			for(int count = 0; count < GENERATION_LIMIT; count ++){
 				if(random.nextDouble() < PROB_CROSSOVER){
-					bi.makeRoller(); //Criando a seleção por roleta
-					bi.selectChrmosomeIndex(2, pop, START_WITH);  //Selecionando os individuos através da roleta 
-				
-					Crossover cros = new Crossover(bi.getSelectedChrmosome()); 	//Inicio da operação de Crossover
-					cros.divCrossover(1, pop.getSizeChrmosome()); //Crossover de x pontos
-					bi.updateGeneration(cros.getFinalCrossoverChrmosome(), pop); //Atualiza a geração atual com os novos cromossomos
-				}
+					s.makeRoller(); //Criando a seleção por roleta
+					s.selectChrmosomeIndex(2, START_WITH);  //Selecionando os individuos através da roleta 
 					
+					Crossover cros = new Crossover(s.getSelectedChrmosome()); 	//Inicio da operação de Crossover
+					cros.simpleCrossover(pop.getQttCars(), pop.getQttClients()); //Crossover de x pontos
+					s.updateGeneration(cros.getFinalCrossoverChrmosome()); //Atualiza a geração atual com os novos cromossomos
+				}
 				if(random.nextDouble() < PROB_MUTATION){  //Probabilidade de mutação.;
 					//Inicio da operação de Mutação
-					bi.makeRoller(); //Criando a seleção por roleta
-					bi.selectChrmosomeIndex(1, pop, START_WITH);  //Selecionando os individuos através da roleta 
+					s.makeRoller(); //Criando a seleção por roleta
+					s.selectChrmosomeIndex(1, START_WITH);  //Selecionando os individuos através da roleta 
 					
-					Mutation mut = new Mutation(bi.getSelectedChrmosome()); //Inicio da operação de mutação.
+					Mutation mut = new Mutation(s.getSelectedChrmosome(), QTT_CLIENTS); //Inicio da operação de mutação.
 					mut.makeSimpleMutation();
-					bi.updateGeneration(mut.getMutationChrmosome(), pop);
+					s.updateGeneration(mut.getMutationChrmosome());
 				}
 			}
-				
-			//Pega os melhores
+			
+			//Elitismo
 			try{
 				for(int i = 0; i < pop.getPopulationSize(); i++){
-					if(bi_aux.getFitnessVector()[i]> bi.getFitnessVector()[i]){
+					if(f_aux.getFitnessVector()[i]> f.getFitnessVector()[i]){
 						pop.updatePop(i, pop_aux.getPop()[i]);
 					}
 				}
-				bi.calcFitness(pop);  //Calculando fitness de cada individuo
-				bi.calcTotalFitness();  //Calculando fitness total da população
-				bi.calcPorcentFitness();  //Calculando fitness porcentual de cada individuo da população
+				f.calcFitness();  //Calculando fitness de cada individuo
+				f.calcTotalFitness();  //Calculando fitness total da população
+				f.calcPorcentFitness();  //Calculando fitness porcentual de cada individuo da população
 			}catch(Exception e){}
-			*/
-		}
 		
-		//pop.setNextGeneration(pop.getPop()); //Define os cromossomos que serão passados para a próxima geração.
-		//pop.immediateReplacement(pop.getNextGeneration());
-		System.out.println("\n-- x --\n");
+			pop.setNextGeneration(pop.getPop()); //Define os cromossomos que serão passados para a próxima geração.
+			
+			f.calcTotalFitness();	
+			f.calcMedFitness();
+			f.calcMaxFitness();
+			f.calcMinFitness();
+			System.out.println("Fitness Total:  "+f.getTotalFitness());
+			System.out.println("Fitness Máximo: "+f.getMaxFitness());
+			System.out.println("Fitness Médio:  "+f.getMedFitness());
+			System.out.println("Fitness Minimo: "+f.getMinFitness());
+			
+			//pop.immediateReplacement(pop.getNextGeneration());
+			System.out.println("\n-- x --\n");
+			
+		}
 	}
 }

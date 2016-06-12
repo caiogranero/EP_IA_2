@@ -1,6 +1,4 @@
-import java.util.Random;
-
-public class Fitness {
+public class Fitness implements Cloneable{
 
 	Population population;
 	float fitnessVector[]; //Armazena o fitness de cada individuo
@@ -28,7 +26,7 @@ public class Fitness {
 	public int totalCost(int[] countCar){
 		int totalCost = 0;
 		for(int i = 0; i < countCar.length; i++){
-			totalCost = countCar[i] - totalCost;
+			totalCost += countCar[i];
 		}
 		return totalCost;
 	}
@@ -39,7 +37,7 @@ public class Fitness {
 		int m = 0;
 		for(int j = 1; j < vetor.length; j++){
 			if(vetor[j] != "*"){
-				countCar[m] -= Integer.parseInt(vetor[j]);
+				countCar[m] += Integer.parseInt(vetor[j]);
 			} else {
 				j++;
 				m++;
@@ -54,8 +52,6 @@ public class Fitness {
 	 * @return
 	 */
 	public int calcFitness(){
-		
-		String pop[] = population.getPop()[0];
 
 		float fitness[] = new float[population.getPopulationSize()];
 		
@@ -186,5 +182,15 @@ public class Fitness {
 
 	public void setMedFitness(float medFitness) {
 		this.medFitness = medFitness;
+	}
+	
+	public Fitness clone() {
+		try {
+			return (Fitness) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
