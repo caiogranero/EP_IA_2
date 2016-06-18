@@ -6,13 +6,14 @@ public class Test {
 	Random random = new Random();
 	
 	public void makeTest(int START_WITH, int QTT_CARS, int GENERATION_LIMIT,
-			int POP_SIZE, double PROB_CROSSOVER, double PROB_MUTATION) throws IOException{
+			int POP_SIZE, double PROB_CROSSOVER, double PROB_MUTATION, boolean fix) throws IOException{
 		
 		Population pop = new Population(GENERATION_LIMIT, POP_SIZE, QTT_CARS);  //Inicia a população
 		Fitness f = new Fitness(pop);
 		Selector s = new Selector(f, pop);
 		
-		pop.readFile("A-n32-k5.txt");
+		//pop.readFile("A-n32-k5.txt");
+		pop.readFile("teste.txt");
 		
 		pop.startPop();
 		
@@ -25,11 +26,10 @@ public class Test {
 			
 			s.orderPopulation(); //Ordena a população para realizar o elitismo
 			
-			f.printFitness();
 			Population pop_aux = pop.clone();
 			Fitness f_aux = f.clone();
 			
-			for(int count = 0; count < GENERATION_LIMIT/10; count ++){
+			for(int count = 0; count < POP_SIZE; count ++){
 				if(random.nextDouble() < PROB_CROSSOVER){
 					s.makeRoller(); //Criando a seleção por roleta
 					s.selectChrmosomeIndex(2, START_WITH);  //Selecionando os individuos através da roleta 
@@ -38,42 +38,36 @@ public class Test {
 					cros.simpleCrossover(pop.getQttCars(), pop.getQttClients()); //Crossover de x pontos
 					s.updateGeneration(cros.getFinalCrossoverChrmosome()); //Atualiza a geração atual com os novos cromossomos
 				}
+				count++;
+			}
+			for(int count = 0; count < POP_SIZE; count++){
 				if(random.nextDouble() < PROB_MUTATION){  //Probabilidade de mutação.;
 					//Inicio da operação de Mutação
 					s.makeRoller(); //Criando a seleção por roleta
 					s.selectChrmosomeIndex(1, START_WITH);  //Selecionando os individuos através da roleta 
 					
-					Mutation mut = new Mutation(s.getSelectedChrmosome(), pop.getQttClients()); //Inicio da operação de mutação.
-					mut.makeSimpleMutation();
-					//s.updateGeneration(mut.getMutationChrmosome());
+					Mutation mut = new Mutation(s.getSelectedChrmosome(), pop); //Inicio da operação de mutação.
+					mut.makeSimpleMutation(fix);
+					s.updateGeneration(mut.getMutationChrmosome());					
 				}
 			}
 			
-			/*Elitismo*/
-			try{
-				for(int i = 0; i < pop.getPopulationSize(); i++){
-					if(f_aux.getFitnessVector()[i] < f.getFitnessVector()[i]){
-						pop.updatePop(i, pop_aux.getPop()[i]);
-					}
-				}
-				
-				f.calcFitness();  //Calculando fitness de cada individuo
-				f.calcTotalFitness();  //Calculando fitness total da população
-				f.calcPorcentFitness();  //Calculando fitness porcentual de cada individuo da população
-			}catch(Exception e){}
+			pop.printPopulation();
+			pop.fixInfactibility();
+			System.out.println("__");
+			pop.printPopulation();
+			pop.makeEletism(pop_aux, f_aux, f);
 		
 			pop.setNextGeneration(pop.getPop()); //Define os cromossomos que serão passados para a próxima geração.
-			
-			f.calcTotalFitness();	
+				
 			f.calcMedFitness();
 			f.calcMaxFitness();
 			f.calcMinFitness();
-			System.out.println("Fitness Total:  "+f.getTotalFitness());
 			System.out.println("Fitness Máximo: "+f.getMaxFitness());
 			System.out.println("Fitness Médio:  "+f.getMedFitness());
 			System.out.println("Fitness Minimo: "+f.getMinFitness());
 			
-			//pop.immediateReplacement(pop.getNextGeneration());
+			pop.immediateReplacement(pop.getNextGeneration());
 			System.out.println("\n-- x --\n");
 			
 		}

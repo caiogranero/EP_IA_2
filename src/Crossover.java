@@ -38,9 +38,15 @@ public class Crossover {
 		
 		int size = (getSelectedChrmosome()[0].length - (selectedCar*range));
 		String temp[] = new String[size];
+		
+		//Pega o index do carrinho
 		for(int i = 0; i != selectedCar; i++){
 			index += range;
 		}
+		
+		
+		
+		//Altera a posição dos carrinhos
 		int m = 0;
 		for(int k = index; k < getSelectedChrmosome()[0].length; k++){
 			temp[m] = getSelectedChrmosome()[0][k];

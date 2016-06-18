@@ -46,7 +46,6 @@ public class Selector implements Cloneable{
 		setSelectedChrmosome(selectedChrmosome);
 	}
 	
-	
 	public void orderPopulation(){
 		String aux[] = new String[pop.getSizeChrmosome()];
 		for(int i = 0; i < pop.getPopulationSize(); i++){

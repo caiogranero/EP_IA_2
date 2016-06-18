@@ -2,6 +2,8 @@ import java.awt.Point;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -15,27 +17,113 @@ public class Population implements Cloneable{
 	int generationLimit;
 	int populationSize;
 	int sizeChrmosome;
-	int capacity;
+	float capacity;
+	int sizeCar;
 	String nextGeneration[][];
 	ArrayList<Point> position = new ArrayList<Point>();
-	
-	public ArrayList<Point> getPosition() {
-		return position;
-	}
-
-	public void setPosition(ArrayList<Point> position) {
-		this.position = position;
-	}
-
-	public ArrayList<Integer> getWeight() {
-		return weight;
-	}
-
-	public void setWeight(ArrayList<Integer> weight) {
-		this.weight = weight;
-	}
-
 	ArrayList<Integer> weight = new ArrayList<Integer>();
+	ArrayList<Integer> numberClient = new ArrayList<Integer>();
+	ArrayList<String> tempSolution = new ArrayList<String>();
+	
+	public boolean isDouble(){
+		for(Integer i = 0; i < getSizeChrmosome(); i++){
+			if(Collections.frequency(tempSolution, i.toString()) > 1){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void fixInfactibility(){
+		for(int i = 0; i < getPopulationSize(); i++){
+			Integer emptyValue= 0;
+			Integer doubleValue = 0;
+			boolean flag1 = false; 
+			boolean flag2 = false;
+			
+			//Copia todos uma solução para o ArrayList
+			for(int j = 1; j < getSizeChrmosome(); j++){
+				tempSolution.add(getPop()[i][j]);
+			}
+			
+			//Procura no arrayList infactibilidade
+			for(Integer k = 0; k < getNumberClient().size(); k++){
+				if(Collections.frequency(tempSolution, k.toString()) > 1){
+					doubleValue = k;
+					flag1 = true;
+				} else {
+					if(Collections.frequency(tempSolution, k.toString()) == 0){
+						emptyValue = k;
+						flag2 = true;
+					}
+				}
+				if(flag1 && flag2){ //Corrige as infactibilidades
+					int index = tempSolution.indexOf(doubleValue.toString());
+					System.out.println("i: "+i);
+					System.out.println(index);
+					tempSolution.remove(index);
+					tempSolution.add(index, emptyValue.toString());
+					k = getNumberClient().size();
+				}
+			}
+			
+			int ik = 0;
+			for(int j = 1; j < getSizeChrmosome(); j++){
+				getPop()[i][j] = tempSolution.get(ik);
+				ik++;
+			}
+			
+			tempSolution.clear();
+		}
+	}
+	
+	public boolean isCarOverweight(int solution, int carPosition, String population[][]){
+		int sumWeight = 0;
+		for(int i = 1; i < getSizeCar(); i++){
+			try{
+				sumWeight += weight.get(Integer.parseInt(population[solution][i]));
+			} catch (NumberFormatException e){
+				if(sumWeight > getCapacity()){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean isSolutionOverweight(int solution){
+		int sumWeight = 0;
+		for(int i = 1; i < getSizeChrmosome(); i++){
+			try{
+				sumWeight += weight.get(Integer.parseInt(pop[solution][i]));
+			} catch(NumberFormatException e){
+				if(sumWeight > getCapacity()){
+					return true;
+				}
+				sumWeight = 0;
+			}
+		}
+		return false;
+	}
+	
+	public void findSizeCar(){
+		int sizeCar = ((getQttCars() + getQttClients())/getQttCars());
+		setSizeCar(sizeCar);
+	}
+	
+	public boolean verifyLastPosition(int solution, int position){
+		if((getPop()[solution].length-1) == position){
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean verifyCarEnd(int solution, int position){
+		if(getPop()[solution][position] == "*"){
+			return true;
+		}
+		return false;
+	}
 	
 	public void readFile(String fileName){
 		int nLine = 0;
@@ -64,6 +152,7 @@ public class Population implements Cloneable{
 		}
 	}
 	
+	
 	//Inicializa a população, definindo os critérios de paradas.
 	public Population(int generationLimit, int populationSize, int qttCars){
 		setGenerationLimit(generationLimit);
@@ -71,10 +160,9 @@ public class Population implements Cloneable{
 		setPopulationSize(populationSize);
 	}
 	
-	ArrayList<Integer> numberClient = new ArrayList<Integer>();
 	
 	//Vetor de valor para os clientes
-	public int possibleClientNumber(){
+	public void possibleClientNumber(){
 		numberClient.clear();
 		for(int i = 0; i < getQttClients(); i++){
 			int k = randInt(0, getQttClients() - 1);
@@ -83,19 +171,21 @@ public class Population implements Cloneable{
 			}
 			numberClient.add(i, k);
 		}
-		return 1;
 	}
-		
+	
+	int clientNumber;
 	/**Função que preenche o vetor população.
 	 * @param pop vetor de população.
 	 * @return
 	 */
 	public String[][] fillPop(String[][] pop){
+		int saveSolution;
 		for(int x = 0; x < getPopulationSize(); x++){
 			possibleClientNumber();
 			int iChangePosition = getSizeChrmosome() / getQttCars();
 			int fChangePosition = 0;
-			int clientNumber = 0;
+			clientNumber = 0;
+			
 			for(int y = 0; y < getSizeChrmosome(); y++){
 				//Insere o primeiro carro.
 				if(y == 0){
@@ -111,8 +201,16 @@ public class Population implements Cloneable{
 					}
 				}
 			}
+			saveSolution = x;
+			if(isSolutionOverweight(x)){
+				x = saveSolution;
+			}
 		}
 		return pop;
+	}
+		
+	public void fixSolution(){
+		
 	}
 	
 	/**Função que preenche o vetor população após a segunda geração.
@@ -139,17 +237,42 @@ public class Population implements Cloneable{
 		
 		setSizeChrmosome(sizeChrmosome);
 		
+		findSizeCar();
+		
 		pop = new String[getPopulationSize()][getSizeChrmosome()];
 		
 		setPop(fillPop(this.pop));
 		
 		return pop;
 	}
+	
+	public void makeEletism(Population pop_aux, Fitness f_aux, Fitness f){
+		try{
+			for(int i = 0; i < getPopulationSize(); i++){
+				if(f_aux.getFitnessVector()[i] < f.getFitnessVector()[i]){
+					updatePop(i, pop_aux.getPop()[i]);
+				}
+			}
+			
+			f.calcFitness();  //Calculando fitness de cada individuo
+			f.calcTotalFitness();  //Calculando fitness total da população
+			f.calcPorcentFitness();  //Calculando fitness porcentual de cada individuo da população
+		}catch(Exception e){}
+	}
 		
 	public void updatePop(int index, String[] chrmosome){
 		this.pop[index] = chrmosome;
 	}
 	
+	//Função que copia uma solução para um vetor temporário
+	public void copyChrmosome(String[][] to, String[][] from){
+		for(int j = 0; j < to.length; j++){
+			for(int i = 0; i < to[0].length; i++){
+				from[0][i] = to[0][i];
+			}
+		}
+	}
+		
 	public String[][] getPop() {
 		return pop;
 	}
@@ -222,14 +345,38 @@ public class Population implements Cloneable{
 		this.numberClient = numberClient;
 	}
 	
-	public int getCapacity() {
+	public float getCapacity() {
 		return capacity;
 	}
 
-	public void setCapacity(int capacity) {
+	public void setCapacity(float capacity) {
 		this.capacity = capacity;
 	}
 	
+	public ArrayList<Point> getPosition() {
+		return position;
+	}
+
+	public void setPosition(ArrayList<Point> position) {
+		this.position = position;
+	}
+
+	public ArrayList<Integer> getWeight() {
+		return weight;
+	}
+
+	public void setWeight(ArrayList<Integer> weight) {
+		this.weight = weight;
+	}
+	
+	public int getSizeCar() {
+		return sizeCar;
+	}
+
+	public void setSizeCar(int sizeCar) {
+		this.sizeCar = sizeCar;
+	}
+
 	public void printPosition(){
 		for (Point p : position) {
 		    System.out.println("["+p.x + "," + p.y+"]");
@@ -263,13 +410,14 @@ public class Population implements Cloneable{
 	public  void printPopulation(){
 		String vector[][] = getPop();
 		int i;
-		for (i=0; i<vector.length; i++) {
-			for(int j = 0; j<vector[i].length; j++){
-			   System.out.printf(vector[i][j]);
+		for (i=0; i < vector.length; i++) {
+			for(int j = 0; j < vector[i].length; j++){
+			   System.out.printf(" "+vector[i][j]);
 			}
 			System.out.printf("\n");
 		}
 	}
+	
 	
 	public Population clone(){
 		try {

@@ -2,7 +2,7 @@ import java.awt.Point;
 
 public class Fitness implements Cloneable{
 
-	Population population;
+	Population pop;
 	float fitnessVector[]; //Armazena o fitness de cada individuo
 	float totalFitness; //Armazena a soma de todos os fitness
 	float porcentFitnessVector[]; //Armazena o porcentual dos fitness de cada individuo
@@ -11,57 +11,55 @@ public class Fitness implements Cloneable{
 	float medFitness;
 	
 	public Fitness(Population pop){
-		this.population = pop;
+		this.pop= pop;
 	}
-	
-	public boolean verifyLastPosition(int solution, int position){
-		if((population.getPop()[solution].length-1) == position){
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean verifyEnd(int solution, int position){
-		if(population.getPop()[solution][position] == "*"){
-			return true;
-		}
-		return false;
-	}
-	
+		
 	Point first = null;
 	Point second = null;
 	boolean needSave = false;
 	
+	public float overcapacity(int solution, int nClient, String population[][]){
+		int sumWeight = 0;
+		float over = 0;
+		for(int i = nClient; i > 0; i--){
+			try{
+				sumWeight += pop.weight.get(Integer.parseInt(population[solution][i]));
+			} catch (NumberFormatException e){
+				over = sumWeight - pop.getCapacity();				
+			}
+		}
+		return over;
+	}
 	
 	public float[] fitnessFunction(){
-		fitnessVector = new float[population.getPopulationSize()];
-		for(int nSolution = 0; nSolution < population.getPopulationSize(); nSolution++){
-			for(int nClient = 1; nClient < population.getSizeChrmosome() - 1; nClient++){
+		fitnessVector = new float[pop.getPopulationSize()];
+		for(int nSolution = 0; nSolution < pop.getPopulationSize(); nSolution++){
+			for(int nClient = 1; nClient < pop.getSizeChrmosome() - 1; nClient++){
 				if(nClient == 1){ //Armazena o primeiro save
-					savePoint = population.getPosition().get(Integer.parseInt(population.getPop()[nSolution][1]));
+					savePoint = pop.getPosition().get(Integer.parseInt(pop.getPop()[nSolution][1]));
 				}
 				int nextClient = 0;
 				try {
 					nextClient = nClient+1;
 					if(needSave){ 
-						savePoint = population.getPosition().get(Integer.parseInt(population.getPop()[nSolution][nClient]));
+						savePoint = pop.getPosition().get(Integer.parseInt(pop.getPop()[nSolution][nClient]));
 						needSave = false;
 					}
 					
-					first = population.getPosition().get(Integer.parseInt(population.getPop()[nSolution][nClient]));
-					second = population.getPosition().get(Integer.parseInt(population.getPop()[nSolution][nextClient]));
+					first = pop.getPosition().get(Integer.parseInt(pop.getPop()[nSolution][nClient]));
+					second = pop.getPosition().get(Integer.parseInt(pop.getPop()[nSolution][nextClient]));
 					
 					fitnessVector[nSolution] += Point.distance(first.getX(), first.getY(), second.getX(), second.getY());
 				} catch(NumberFormatException e) {
 					second = savePoint;
-					fitnessVector[nSolution] += Point.distance(first.getX(), first.getY(), second.getX(), second.getY());
+					fitnessVector[nSolution] += Point.distance(first.getX(), first.getY(), second.getX(), second.getY()) + overcapacity(nSolution, nClient -1 , pop.getPop());
 					needSave = true;
 				}
 			}			
 		}
 		return fitnessVector;
 	}
-		
+
 	Point savePoint;
 		
 	/**
