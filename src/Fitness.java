@@ -1,3 +1,5 @@
+import java.awt.Point;
+
 public class Fitness implements Cloneable{
 
 	Population population;
@@ -12,40 +14,56 @@ public class Fitness implements Cloneable{
 		this.population = pop;
 	}
 	
+	public boolean verifyLastPosition(int solution, int position){
+		if((population.getPop()[solution].length-1) == position){
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean verifyEnd(int solution, int position){
+		if(population.getPop()[solution][position] == "*"){
+			return true;
+		}
+		return false;
+	}
+	
+	Point first = null;
+	Point second = null;
+	boolean needSave = false;
+	
+	
 	public float[] fitnessFunction(){
-		float totalCost[] = new float[population.getPopulationSize()];
+		fitnessVector = new float[population.getPopulationSize()];
 		for(int nSolution = 0; nSolution < population.getPopulationSize(); nSolution++){
-			for(int nCar = 0; nCar < population.getQttCars(); nCar++){
-				totalCost[nSolution] = totalCost(carCost(population.getPop()[nSolution]));
-			}
+			for(int nClient = 1; nClient < population.getSizeChrmosome() - 1; nClient++){
+				if(nClient == 1){ //Armazena o primeiro save
+					savePoint = population.getPosition().get(Integer.parseInt(population.getPop()[nSolution][1]));
+				}
+				int nextClient = 0;
+				try {
+					nextClient = nClient+1;
+					if(needSave){ 
+						savePoint = population.getPosition().get(Integer.parseInt(population.getPop()[nSolution][nClient]));
+						needSave = false;
+					}
+					
+					first = population.getPosition().get(Integer.parseInt(population.getPop()[nSolution][nClient]));
+					second = population.getPosition().get(Integer.parseInt(population.getPop()[nSolution][nextClient]));
+					
+					fitnessVector[nSolution] += Point.distance(first.getX(), first.getY(), second.getX(), second.getY());
+				} catch(NumberFormatException e) {
+					second = savePoint;
+					fitnessVector[nSolution] += Point.distance(first.getX(), first.getY(), second.getX(), second.getY());
+					needSave = true;
+				}
+			}			
 		}
-		return totalCost;
+		return fitnessVector;
 	}
-	
-	//Calcula o custo total de todas as viagens, para todos os carros de uma solução.
-	public int totalCost(int[] countCar){
-		int totalCost = 0;
-		for(int i = 0; i < countCar.length; i++){
-			totalCost += countCar[i];
-		}
-		return totalCost;
-	}
-	
-	//Calcula o custo de ir em um cliente para o outro, seguindo toda a rota.
-	public int[] carCost(String[] vetor){
-		int countCar[] = new int[population.getQttCars()];
-		int m = 0;
-		for(int j = 1; j < vetor.length; j++){
-			if(vetor[j] != "*"){
-				countCar[m] += Integer.parseInt(vetor[j]);
-			} else {
-				j++;
-				m++;
-			}
-		}
-		return countCar; 
-	} 
-	
+		
+	Point savePoint;
+		
 	/**
 	 * Calcula o fitness de cada cromossomo
 	 * @param population população que seŕa calculada o fitness
@@ -53,12 +71,8 @@ public class Fitness implements Cloneable{
 	 */
 	public int calcFitness(){
 
-		float fitness[] = new float[population.getPopulationSize()];
-		
-	    for(int nChrmosome = 0; nChrmosome < population.getPopulationSize(); nChrmosome++){
-	    	fitness[nChrmosome] = fitnessFunction()[nChrmosome];
-	    }
-	    setFitnessVector(fitness);
+	    setFitnessVector(fitnessFunction());
+	    
 		return 0;
 	}
 

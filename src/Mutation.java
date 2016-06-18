@@ -15,7 +15,7 @@ public class Mutation {
 	//Realiza a mutação simples
 	public  void makeSimpleMutation(){
 		mutationPoint();
-		Integer newValue = randInt(1, qttClients);
+		Integer newValue = randInt(1, qttClients - 1);
 		getSelectedChrmosome()[0][getMutationPoint()] = newValue.toString();
 		setMutationChrmosome(getSelectedChrmosome());
 	}

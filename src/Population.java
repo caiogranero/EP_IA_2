@@ -1,5 +1,9 @@
+import java.awt.Point;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Population implements Cloneable{
 	
@@ -11,17 +15,60 @@ public class Population implements Cloneable{
 	int generationLimit;
 	int populationSize;
 	int sizeChrmosome;
+	int capacity;
 	String nextGeneration[][];
+	ArrayList<Point> position = new ArrayList<Point>();
+	
+	public ArrayList<Point> getPosition() {
+		return position;
+	}
 
+	public void setPosition(ArrayList<Point> position) {
+		this.position = position;
+	}
+
+	public ArrayList<Integer> getWeight() {
+		return weight;
+	}
+
+	public void setWeight(ArrayList<Integer> weight) {
+		this.weight = weight;
+	}
+
+	ArrayList<Integer> weight = new ArrayList<Integer>();
+	
+	public void readFile(String fileName){
+		int nLine = 0;
+		try{
+			File file = new File(fileName);
+			Scanner sc = new Scanner(file);
+			while (sc.hasNext()){
+				if(nLine == 0){
+					setQttClients(sc.nextInt());
+					setCapacity(sc.nextInt());
+					nLine++;
+				} else {
+					if(nLine <= getQttClients()){
+						sc.nextInt();
+						position.add(new Point(sc.nextInt(), sc.nextInt()));
+						nLine++;
+					} else {
+						sc.nextInt();
+						weight.add(sc.nextInt());
+					}
+				}
+			}
+			sc.close();
+		} catch (FileNotFoundException e){
+			e.printStackTrace();
+		}
+	}
+	
 	//Inicializa a população, definindo os critérios de paradas.
-	public Population(int generationLimit, int populationSize, int qttClients, int qttCars){
+	public Population(int generationLimit, int populationSize, int qttCars){
 		setGenerationLimit(generationLimit);
 		setQttCars(qttCars);
-		setQttClients(qttClients);
 		setPopulationSize(populationSize);
-		
-		sizeChrmosome = qttCars + qttClients;
-		setSizeChrmosome(sizeChrmosome);
 	}
 	
 	ArrayList<Integer> numberClient = new ArrayList<Integer>();
@@ -87,6 +134,11 @@ public class Population implements Cloneable{
 	 * @return
 	 */
 	public String[][] startPop(){
+		
+		sizeChrmosome = getQttCars() + getQttClients();
+		
+		setSizeChrmosome(sizeChrmosome);
+		
 		pop = new String[getPopulationSize()][getSizeChrmosome()];
 		
 		setPop(fillPop(this.pop));
@@ -95,9 +147,7 @@ public class Population implements Cloneable{
 	}
 		
 	public void updatePop(int index, String[] chrmosome){
-		for(int i = 0; i < getSizeChrmosome(); i++){
-			this.pop[index][i] = chrmosome[i];	
-		}
+		this.pop[index] = chrmosome;
 	}
 	
 	public String[][] getPop() {
@@ -172,6 +222,26 @@ public class Population implements Cloneable{
 		this.numberClient = numberClient;
 	}
 	
+	public int getCapacity() {
+		return capacity;
+	}
+
+	public void setCapacity(int capacity) {
+		this.capacity = capacity;
+	}
+	
+	public void printPosition(){
+		for (Point p : position) {
+		    System.out.println("["+p.x + "," + p.y+"]");
+		}
+	}
+	
+	public void printWeight(){
+		for (Integer i : weight) {
+		    System.out.println(i.intValue());
+		}
+	}
+	
 	/**
 	 * Função que gera números aleatórios.
 	 * @param min -> Valor minimo do range
@@ -192,7 +262,6 @@ public class Population implements Cloneable{
 	
 	public  void printPopulation(){
 		String vector[][] = getPop();
-
 		int i;
 		for (i=0; i<vector.length; i++) {
 			for(int j = 0; j<vector[i].length; j++){

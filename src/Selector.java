@@ -22,7 +22,6 @@ public class Selector implements Cloneable{
 			} else if(i == 0){
 				roller[i] = f.getPorcentFitnessVector()[i];
 			}
-			//System.out.println(roller[i]);
 		}
 		setRollerVector(roller);
 	}
@@ -32,7 +31,7 @@ public class Selector implements Cloneable{
 		int selectedIndex[] = new int[qttChrmosome];
 		String selectedChrmosome[][] = new String[qttChrmosome][pop.getSizeChrmosome()]; 
 		for(int nChrmosome = 0; nChrmosome < qttChrmosome; nChrmosome++){
-			int random = randInt(startWith, 99); //Sorteia um número de 0 a 99			
+			int random = randInt(startWith, 99); //Sorteia um número de 0 a 99
 			for(int i = startWith; i < getRollerVector().length; i++){
 				if(random < getRollerVector()[i]){
 					selectedIndex[nChrmosome] = i; //Insere o indice do individuo no vetor
@@ -47,16 +46,16 @@ public class Selector implements Cloneable{
 		setSelectedChrmosome(selectedChrmosome);
 	}
 	
+	
 	public void orderPopulation(){
+		String aux[] = new String[pop.getSizeChrmosome()];
 		for(int i = 0; i < pop.getPopulationSize(); i++){
 			for(int j = 0; j < pop.getPopulationSize(); j++){
 				f.calcFitness();
 				if(f.getFitnessVector()[i] < f.getFitnessVector()[j]){
-					for(int k = 0; k < pop.getPop().length; k++){
-						String[] aux = pop.getPop()[k];
-						pop.updatePop(i, pop.getPop()[j]);
-						pop.updatePop(j, aux);
-					}
+					aux = pop.getPop()[i];
+					pop.updatePop(i, pop.getPop()[j]);
+					pop.updatePop(j, aux);
 				}
 			}
 		}
