@@ -16,11 +16,11 @@ public class Test {
 		//pop.readFile("A-n32-k5.txt");
 		//pop.readFile("B-n31-k5.txt");
 		pop.readFile("A-n63-k10.txt");
-		//pop.readFile("teste.txt");
+		//pop.readFile("P-n40-k5.txt");
 		
 		pop.startPop();
 		
-		FileWriter arq = new FileWriter("teste-A-high-com-fix.txt");
+		FileWriter arq = new FileWriter("testes/classe-A-com-high-fix.txt");
 		Writer write = new Writer(arq);
 		write.header(PROB_CROSSOVER, PROB_MUTATION, GENERATION_LIMIT, POP_SIZE, START_WITH, fix, QTT_CARS, pop.getQttClients());
 		write.headerExcel();
@@ -58,10 +58,12 @@ public class Test {
 				}
 			}
 			
-			int i = 0;
 			//Concertar infactibilidades
 			if(fix){
-				pop.fixInfactibility();
+				pop.orderPopulation(f);
+				pop.fixInfactibility(START_WITH);
+				f.calcFitness();
+			} else {
 				f.calcFitness();
 			}
 			

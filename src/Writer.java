@@ -34,7 +34,7 @@ public class Writer {
 	}
 	
 	public void headerExcel(){
-		gravarArq.printf("Geração, Fitness Total, Fitness Médio, Fitness Máximo, Fitness Minimo%n");
+		gravarArq.printf("Geração, Fitness Médio, Fitness Máximo, Fitness Minimo%n");
 	}
 	
 	public void excel(float medFitness, float maxFitness, float minFitness, float atualGeneration){
