@@ -49,6 +49,10 @@ public class Mutation {
 		}
 	}
 	
+	public void makeRandomMutation(){
+		
+	}
+	
 	//Realiza a mutação simples
 	public void makeSimpleMutation(boolean fix){
 		pop.copyChrmosome(getSelectedChrmosome(), temp);

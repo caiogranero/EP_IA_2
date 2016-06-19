@@ -69,6 +69,18 @@ public class Test {
 				}
 			}
 			
+			for(int count = 0; count < POP_SIZE; count++){
+				if(random.nextDouble() < PROB_MUTATION){  //Probabilidade de mutação.;
+					//Inicio da operação de Mutação
+					s.makeRoller(); //Criando a seleção por roleta
+					s.selectChrmosomeIndex(1, START_WITH);  //Selecionando os individuos através da roleta 
+					
+					Mutation mut = new Mutation(s.getSelectedChrmosome(), pop); //Inicio da operação de mutação.
+					mut.makeRandomMutation(fix);
+					s.updateGeneration(mut.getMutationChrmosome());					
+				}
+			}
+			
 			int i = 0;
 			//Concertar infactibilidades
 			if(fix){
