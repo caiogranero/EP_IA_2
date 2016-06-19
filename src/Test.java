@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class Test {
@@ -13,9 +14,16 @@ public class Test {
 		Selector s = new Selector(f, pop);
 		
 		//pop.readFile("A-n32-k5.txt");
-		pop.readFile("teste.txt");
+		//pop.readFile("B-n31-k5.txt");
+		pop.readFile("A-n63-k10.txt");
+		//pop.readFile("teste.txt");
 		
 		pop.startPop();
+		
+		FileWriter arq = new FileWriter("teste-A-high-com-fix.txt");
+		Writer write = new Writer(arq);
+		write.header(PROB_CROSSOVER, PROB_MUTATION, GENERATION_LIMIT, POP_SIZE, START_WITH, fix, QTT_CARS, pop.getQttClients());
+		write.headerExcel();
 		
 		for(int atualGeneration = 0; atualGeneration < pop.getGenerationLimit(); atualGeneration++){ //Critério de parada I
 			System.out.println(atualGeneration+"ª Geração");
@@ -23,8 +31,6 @@ public class Test {
 			f.calcFitness();  //Calcula o fitness individual da população
 			f.calcTotalFitness();  //Calculando fitness total da população
 			f.calcPorcentFitness();  //Calculando fitness porcentual de cada individuo da população
-			
-			s.orderPopulation(); //Ordena a população para realizar o elitismo
 			
 			Population pop_aux = pop.clone();
 			Fitness f_aux = f.clone();
@@ -52,14 +58,21 @@ public class Test {
 				}
 			}
 			
-			pop.printPopulation();
-			pop.fixInfactibility();
-			System.out.println("__");
-			pop.printPopulation();
-			pop.makeEletism(pop_aux, f_aux, f);
+			int i = 0;
+			//Concertar infactibilidades
+			if(fix){
+				pop.fixInfactibility();
+				f.calcFitness();
+			}
+			
+			//Eletismo
+			if(START_WITH > 1){
+				pop.orderPopulation(f); //Ordena a população para realizar o elitismo
+				pop.makeEletism(pop_aux, f_aux, f);
+			}
 		
 			pop.setNextGeneration(pop.getPop()); //Define os cromossomos que serão passados para a próxima geração.
-				
+
 			f.calcMedFitness();
 			f.calcMaxFitness();
 			f.calcMinFitness();
@@ -67,9 +80,12 @@ public class Test {
 			System.out.println("Fitness Médio:  "+f.getMedFitness());
 			System.out.println("Fitness Minimo: "+f.getMinFitness());
 			
+			write.excel(f.getMedFitness(), f.getMaxFitness(), f.getMinFitness(), atualGeneration);
+			
 			pop.immediateReplacement(pop.getNextGeneration());
 			System.out.println("\n-- x --\n");
 			
 		}
+		arq.close();
 	}
 }

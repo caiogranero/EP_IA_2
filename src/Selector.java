@@ -44,21 +44,7 @@ public class Selector implements Cloneable{
 		}
 		setSelectedIndex(selectedIndex);
 		setSelectedChrmosome(selectedChrmosome);
-	}
-	
-	public void orderPopulation(){
-		String aux[] = new String[pop.getSizeChrmosome()];
-		for(int i = 0; i < pop.getPopulationSize(); i++){
-			for(int j = 0; j < pop.getPopulationSize(); j++){
-				f.calcFitness();
-				if(f.getFitnessVector()[i] < f.getFitnessVector()[j]){
-					aux = pop.getPop()[i];
-					pop.updatePop(i, pop.getPop()[j]);
-					pop.updatePop(j, aux);
-				}
-			}
-		}
-	}
+	}	
 	
 	public void updateGeneration(String[][] updateChrmossome){
 		for(int i = 0; i < getRollerVector().length; i++){

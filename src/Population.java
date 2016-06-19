@@ -2,7 +2,6 @@ import java.awt.Point;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
@@ -24,14 +23,49 @@ public class Population implements Cloneable{
 	ArrayList<Integer> weight = new ArrayList<Integer>();
 	ArrayList<Integer> numberClient = new ArrayList<Integer>();
 	ArrayList<String> tempSolution = new ArrayList<String>();
+	ArrayList<String> tempSolution2 = new ArrayList<String>();
 	
-	public boolean isDouble(){
-		for(Integer i = 0; i < getSizeChrmosome(); i++){
-			if(Collections.frequency(tempSolution, i.toString()) > 1){
-				return true;
+	public void printWeightSolution(){
+		for(int i = 0; i < getPopulationSize(); i++){
+			int sumWeight = 0;
+			for(int j = 1; j < getSizeChrmosome(); j++){
+				try{
+					sumWeight += weight.get(Integer.parseInt(getPop()[i][j]));
+				} catch (NumberFormatException e){
+				System.out.println("Solução: "+"["+i+"]"+"Capacidade do caminhão: ["+j+"] - "+sumWeight);
+				sumWeight = 0;
+				}
+			}
+			
+		}
+	}
+	
+	public boolean isInfactibility(){
+		tempSolution2.clear();
+		for(int i = 0; i < getPopulationSize(); i++){
+			//Copia todos uma solução para o ArrayList
+			for(int j = 1; j < getSizeChrmosome(); j++){
+				tempSolution2.add(getPop()[i][j]);
+			}
+			System.out.println("1");
+			//Verifica
+			for(Integer k = 0; k < getNumberClient().size(); k++){
+				if(Collections.frequency(tempSolution2, k.toString()) > 1){
+					return true;
+				} else {
+					if(Collections.frequency(tempSolution2, k.toString()) == 0){
+						return true;
+					}
+				}
 			}
 		}
 		return false;
+	}
+	
+	public void lookInfactibility(){
+		while(isInfactibility()){
+			fixInfactibility();
+		}
 	}
 	
 	public void fixInfactibility(){
@@ -59,49 +93,56 @@ public class Population implements Cloneable{
 				}
 				if(flag1 && flag2){ //Corrige as infactibilidades
 					int index = tempSolution.indexOf(doubleValue.toString());
-					System.out.println("i: "+i);
-					System.out.println(index);
 					tempSolution.remove(index);
 					tempSolution.add(index, emptyValue.toString());
 					k = getNumberClient().size();
 				}
 			}
 			
-			int ik = 0;
+			int iArray = 0;
 			for(int j = 1; j < getSizeChrmosome(); j++){
-				getPop()[i][j] = tempSolution.get(ik);
-				ik++;
+				getPop()[i][j] = tempSolution.get(iArray);
+				iArray++;
 			}
 			
 			tempSolution.clear();
 		}
 	}
 	
-	public boolean isCarOverweight(int solution, int carPosition, String population[][]){
-		int sumWeight = 0;
-		for(int i = 1; i < getSizeCar(); i++){
-			try{
-				sumWeight += weight.get(Integer.parseInt(population[solution][i]));
-			} catch (NumberFormatException e){
-				if(sumWeight > getCapacity()){
-					return true;
-				}
+	int save;
+	
+	public boolean isSolutionOverweight(int nSolution){
+		for(int i = 1; i < getSizeChrmosome(); i++){
+			if(isCarOverweight(nSolution, i, getPop())){
+				return true;
 			}
+			i = save;
 		}
 		return false;
 	}
-	
-	public boolean isSolutionOverweight(int solution){
+
+	public boolean isCarOverweight(int solution, int carPosition, String population[][]){
 		int sumWeight = 0;
-		for(int i = 1; i < getSizeChrmosome(); i++){
+		int k = 0;
+		for(int i = 1; i < getSizeCar()+1; i++){
 			try{
-				sumWeight += weight.get(Integer.parseInt(pop[solution][i]));
-			} catch(NumberFormatException e){
+				if(carPosition != population[0].length){
+					sumWeight += weight.get(Integer.parseInt(population[solution][carPosition]));
+					k++;
+					carPosition++;
+				}
+			} catch (NumberFormatException e){
+				save += k+1;
 				if(sumWeight > getCapacity()){
 					return true;
+				} else {
+					return false;
 				}
-				sumWeight = 0;
 			}
+		}
+		save += k+1;
+		if(sumWeight > getCapacity()){
+			return true;
 		}
 		return false;
 	}
@@ -109,20 +150,6 @@ public class Population implements Cloneable{
 	public void findSizeCar(){
 		int sizeCar = ((getQttCars() + getQttClients())/getQttCars());
 		setSizeCar(sizeCar);
-	}
-	
-	public boolean verifyLastPosition(int solution, int position){
-		if((getPop()[solution].length-1) == position){
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean verifyCarEnd(int solution, int position){
-		if(getPop()[solution][position] == "*"){
-			return true;
-		}
-		return false;
 	}
 	
 	public void readFile(String fileName){
@@ -180,7 +207,8 @@ public class Population implements Cloneable{
 	 */
 	public String[][] fillPop(String[][] pop){
 		int saveSolution;
-		for(int x = 0; x < getPopulationSize(); x++){
+		int x = 0;
+		while(x < getPopulationSize()){
 			possibleClientNumber();
 			int iChangePosition = getSizeChrmosome() / getQttCars();
 			int fChangePosition = 0;
@@ -202,7 +230,8 @@ public class Population implements Cloneable{
 				}
 			}
 			saveSolution = x;
-			if(isSolutionOverweight(x)){
+			x++;
+			if(isSolutionOverweight(saveSolution)){
 				x = saveSolution;
 			}
 		}
@@ -246,6 +275,7 @@ public class Population implements Cloneable{
 		return pop;
 	}
 	
+	
 	public void makeEletism(Population pop_aux, Fitness f_aux, Fitness f){
 		try{
 			for(int i = 0; i < getPopulationSize(); i++){
@@ -255,8 +285,6 @@ public class Population implements Cloneable{
 			}
 			
 			f.calcFitness();  //Calculando fitness de cada individuo
-			f.calcTotalFitness();  //Calculando fitness total da população
-			f.calcPorcentFitness();  //Calculando fitness porcentual de cada individuo da população
 		}catch(Exception e){}
 	}
 		
@@ -272,7 +300,21 @@ public class Population implements Cloneable{
 			}
 		}
 	}
-		
+	
+	public void orderPopulation(Fitness f){
+		String aux[] = new String[getSizeChrmosome()];
+		for(int i = 0; i < getPopulationSize(); i++){
+			for(int j = 0; j < getPopulationSize(); j++){
+				f.calcFitness();
+				if(f.getFitnessVector()[i] < f.getFitnessVector()[j]){
+					aux = getPop()[i];
+					updatePop(i, getPop()[j]);
+					updatePop(j, aux);
+				}
+			}
+		}
+	}
+	
 	public String[][] getPop() {
 		return pop;
 	}

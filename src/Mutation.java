@@ -34,9 +34,7 @@ public class Mutation {
 	//Verifica se o carrinho com o novo cliente tem mais peso do que deveria
 	public void fixMutationWeight(int number){
 		while(pop.isCarOverweight(0, getMutationCar()[number]+1, temp)){
-			System.out.println("looping fucker");
 			newValue = randInt(1, pop.getQttClients() - 1);
-			System.out.println(newValue);
 			temp[0][getMutationPoint()] = newValue.toString();
 		}
 	}
