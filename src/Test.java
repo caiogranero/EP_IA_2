@@ -58,6 +58,17 @@ public class Test {
 				}
 			}
 			
+			for(int count = 0; count < POP_SIZE; count ++){
+				if(random.nextDouble() < PROB_CROSSOVER){
+					s.makeRoller(); //Criando a seleção por roleta
+					s.selectChrmosomeIndex(2, START_WITH);  //Selecionando os individuos através da roleta 
+					
+					Crossover cros = new Crossover(s.getSelectedChrmosome()); 	//Inicio da operação de Crossover
+					cros.randomCrossover(pop.getQttCars(), pop.getQttClients()); //Crossover de x pontos
+					s.updateGeneration(cros.getFinalCrossoverChrmosome()); //Atualiza a geração atual com os novos cromossomos
+				}
+			}
+			
 			int i = 0;
 			//Concertar infactibilidades
 			if(fix){

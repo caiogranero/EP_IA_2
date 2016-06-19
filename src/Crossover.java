@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Crossover {
@@ -30,6 +32,34 @@ public class Crossover {
 		}
 		return cost;
 	}
+
+	public void randomCrossover(int qttCars, int qttClients) {
+		int selectSubRoute = randInt(0, qttCars);
+		int aux=0;
+		int beginRoute = 0;
+		int finishRoute = 0;
+		for(int i = 0; this.selectedChrmosome[0].length>i; i++){
+			if (this.selectedChrmosome[0][i].equals("*")){
+				aux++;
+				if (aux == selectSubRoute){
+					beginRoute = i + 1;
+				}
+				if (aux == selectSubRoute+1){
+					finishRoute = i - 1;
+					break;
+				}
+			}			
+		}
+		int positionCrossover = ((qttCars + qttClients)/qttCars) * randInt(0, qttCars);
+		for(int i = beginRoute; i <= finishRoute; i++){
+			if(this.selectedChrmosome[1][positionCrossover].equals("*")) positionCrossover++;
+			String temp = this.getSelectedChrmosome()[1][positionCrossover];								
+			this.selectedChrmosome[1][positionCrossover] = this.selectedChrmosome[0][i];
+			this.selectedChrmosome[0][i] = temp;
+		}
+		setFinalCrossoverChrmosome(getSelectedChrmosome());
+	}
+	
 	
 	public void simpleCrossover(int qttCars, int qttClients){
 		int selectedCar = randInt(0, qttCars - 1);
