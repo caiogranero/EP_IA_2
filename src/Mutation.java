@@ -50,7 +50,15 @@ public class Mutation {
 	}
 	
 	public void makeRandomMutation(){
+		pop.copyChrmosome(getSelectedChrmosome(), temp);
+		mutationPoint();
+		savedValue = getSelectedChrmosome()[0][getMutationPoint()];
+		newValue = randInt(1, pop.getQttClients() - 1);
+		temp[0][getMutationPoint()] = newValue.toString();
 		
+		pop.copyChrmosome(temp, getSelectedChrmosome());
+		
+		setMutationChrmosome(getSelectedChrmosome());
 	}
 	
 	//Realiza a mutação simples
