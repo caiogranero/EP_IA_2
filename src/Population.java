@@ -40,14 +40,13 @@ public class Population implements Cloneable{
 		}
 	}
 	
-	public boolean isInfactibility(){
+	public boolean isInfactibility(int elitism){
 		tempSolution2.clear();
-		for(int i = 0; i < getPopulationSize(); i++){
+		for(int i = elitism; i < getPopulationSize(); i++){
 			//Copia todos uma solução para o ArrayList
 			for(int j = 1; j < getSizeChrmosome(); j++){
 				tempSolution2.add(getPop()[i][j]);
 			}
-			System.out.println("1");
 			//Verifica
 			for(Integer k = 0; k < getNumberClient().size(); k++){
 				if(Collections.frequency(tempSolution2, k.toString()) > 1){
@@ -62,18 +61,19 @@ public class Population implements Cloneable{
 		return false;
 	}
 	
-	public void lookInfactibility(){
-		while(isInfactibility()){
-			fixInfactibility();
+	public void lookInfactibility(int elitism){
+		while(isInfactibility(elitism)){
+			fixInfactibility(elitism);
 		}
 	}
 	
-	public void fixInfactibility(){
-		for(int i = 0; i < getPopulationSize(); i++){
+	public void fixInfactibility(int elitism){
+		for(int i = elitism; i < getPopulationSize(); i++){
 			Integer emptyValue= 0;
 			Integer doubleValue = 0;
 			boolean flag1 = false; 
 			boolean flag2 = false;
+			int mm = 0;
 			
 			//Copia todos uma solução para o ArrayList
 			for(int j = 1; j < getSizeChrmosome(); j++){
@@ -85,6 +85,7 @@ public class Population implements Cloneable{
 				if(Collections.frequency(tempSolution, k.toString()) > 1){
 					doubleValue = k;
 					flag1 = true;
+					mm++;
 				} else {
 					if(Collections.frequency(tempSolution, k.toString()) == 0){
 						emptyValue = k;
@@ -95,7 +96,12 @@ public class Population implements Cloneable{
 					int index = tempSolution.indexOf(doubleValue.toString());
 					tempSolution.remove(index);
 					tempSolution.add(index, emptyValue.toString());
-					k = getNumberClient().size();
+					if(mm > 1){
+						k = 0;
+						mm = 0;
+					} else {
+						k = getNumberClient().size();
+					}
 				}
 			}
 			
