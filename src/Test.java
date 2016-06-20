@@ -15,12 +15,12 @@ public class Test {
 		
 		//pop.readFile("A-n32-k5.txt");
 		//pop.readFile("B-n31-k5.txt");
-		pop.readFile("A-n63-k10.txt");
-		//pop.readFile("P-n40-k5.txt");
+		//pop.readFile("A-n63-k10.txt");
+		pop.readFile("P-n40-k5.txt");
 		
 		pop.startPop();
 		
-		FileWriter arq = new FileWriter("testes/classe-A-com-high-fix.txt");
+		FileWriter arq = new FileWriter("testes/classe-p-com-high-fix-andre.txt");
 		Writer write = new Writer(arq);
 		write.header(PROB_CROSSOVER, PROB_MUTATION, GENERATION_LIMIT, POP_SIZE, START_WITH, fix, QTT_CARS, pop.getQttClients());
 		write.headerExcel();
