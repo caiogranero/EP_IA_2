@@ -1,3 +1,4 @@
+import java.awt.Point;
 import java.util.Random;
 
 public class Mutation {
@@ -54,16 +55,26 @@ public class Mutation {
 		mutationPoint();
 		
 		savedValue = getSelectedChrmosome()[0][getMutationPoint()];
-		newValue = randInt(1, pop.getQttClients() - 1);
+		
+		int valueAux = 0;
+
+		Point p1 = pop.getPosition().get(Integer.parseInt(savedValue));
+		Point p2 = null;
+		double distance = 999.99;
+		
 		for(int i = 0; i<getSelectedChrmosome()[0].length; i++){
-			if(getSelectedChrmosome()[0][i].equals(newValue)){
-				this.selectedChrmosome[0][i] = savedValue;
-				break;
+			if(!this.selectedChrmosome[0][i].equals("*")){
+				p2 = pop.getPosition().get(Integer.parseInt(this.selectedChrmosome[0][i]));
+				double aux_dist = Point.distance(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+				if (aux_dist < distance){
+					distance = aux_dist;
+					valueAux = i;
+				}		
 			}
 		}
-		temp[0][getMutationPoint()] = newValue.toString();
-		
-		pop.copyChrmosome(temp, getSelectedChrmosome());
+		String aux = this.selectedChrmosome[0][getMutationPoint()];
+		this.selectedChrmosome[0][getMutationPoint()] = this.selectedChrmosome[0][valueAux];
+		this.selectedChrmosome[0][valueAux] = aux;
 		
 		setMutationChrmosome(getSelectedChrmosome());
 	}
