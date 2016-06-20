@@ -1,3 +1,4 @@
+import java.awt.Point;
 import java.util.Random;
 
 public class Selector implements Cloneable{
@@ -56,6 +57,14 @@ public class Selector implements Cloneable{
 				}
 			}
 		}
+	}
+	
+	public Point[][] getPointsChromossome(){
+		Point points[][] = new Point[2][];
+		//points[0] = this.pop.getPosition().get(this.getSelectedIndex()[0]);
+		//points[1] = this.pop.getPosition().get(this.getSelectedIndex()[1]);
+		
+		return points;
 	}
 	
 	/**

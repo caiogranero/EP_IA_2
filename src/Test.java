@@ -77,7 +77,7 @@ public class Test {
 					s.selectChrmosomeIndex(1, START_WITH);  //Selecionando os individuos através da roleta 
 					
 					Mutation mut = new Mutation(s.getSelectedChrmosome(), pop); //Inicio da operação de mutação.
-					mut.makeRandomMutation(fix);
+					mut.makeRandomMutation();
 					s.updateGeneration(mut.getMutationChrmosome());					
 				}
 			}
